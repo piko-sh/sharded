@@ -30,7 +30,8 @@
 //     which is too much to keep per item.
 //   - [Counter] is one word until it sees contention, then switches to an Adder. It suits
 //     per item counts, such as hits on each cache entry, when only some items are hot. A
-//     cold Counter uses 16 bytes.
+//     cold Counter uses 16 bytes; [InflatedCounterBytes] gives its size once inflated,
+//     for code that budgets memory per item.
 //   - [Sequence] hands out unique uint64 values, such as ids. Each P takes a block of
 //     values from one shared counter and hands them out from its own slot, so the shared
 //     counter is written once per block instead of once per value.

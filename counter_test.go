@@ -65,6 +65,29 @@ func TestCounterSizeBeforeInflation(t *testing.T) {
 	assert.Equal(t, uintptr(16), reflect.TypeFor[Counter]().Size(), "a cold Counter is two words")
 }
 
+func TestInflatedCounterBytes(t *testing.T) {
+	t.Parallel()
+
+	want := int(reflect.TypeFor[Counter]().Size()) + int(reflect.TypeFor[Adder]().Size()) +
+		stripeCount()*int(reflect.TypeFor[adderStripe]().Size())
+
+	assert.Equal(t, want, InflatedCounterBytes())
+	assert.Equal(t, uintptr(counterBytes), reflect.TypeFor[Counter]().Size())
+	assert.Equal(t, uintptr(cacheLineSize), reflect.TypeFor[Adder]().Size())
+	assert.Equal(t, uintptr(cacheLineSize), reflect.TypeFor[adderStripe]().Size())
+}
+
+func TestInflatedCounterBytesMatchesAnInflatedCounter(t *testing.T) {
+	t.Parallel()
+
+	var counter Counter
+	adder := counter.inflate()
+
+	got := int(reflect.TypeFor[Counter]().Size()) + int(reflect.TypeFor[Adder]().Size()) +
+		len(adder.stripes)*int(reflect.TypeFor[adderStripe]().Size())
+	assert.Equal(t, got, InflatedCounterBytes())
+}
+
 func TestCounterStaysSmallWithoutContention(t *testing.T) {
 	t.Parallel()
 

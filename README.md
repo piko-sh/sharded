@@ -64,6 +64,9 @@ The example prints `8000 8000`.
   time one `Add` fails its compare and swap four times in a row. Cold counters stay at
   16 bytes. Only hot counters pay for stripes. Use it for counts kept on every item, such
   as hits on each cache entry, when only some items are hot.
+- **`InflatedCounterBytes`** returns how much memory one `Counter` uses once it has
+  inflated in this process, so code that budgets memory for values holding a `Counter`
+  (for example a cache weigher) can cover counters that inflate later.
 - `Adder` and `Counter` both have **`Add(delta int64)`** and **`Value() int64`**, are safe
   for any number of goroutines, and wrap on overflow like `atomic.Int64`.
 - **`Sequence`** hands out unique `uint64` values, such as ids, built with

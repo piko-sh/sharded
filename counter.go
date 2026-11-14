@@ -28,6 +28,10 @@ const (
 	//
 	// Four keeps cold counters small and lets a hot counter inflate quickly.
 	inflationThreshold = 4
+
+	// counterBytes is the size of a Counter before it inflates: the count and the stripe
+	// pointer.
+	counterBytes = 16
 )
 
 // Counter is an exact int64 counter that starts as a single word and moves to stripes
@@ -109,4 +113,13 @@ func (c *Counter) inflate() *Adder {
 		return adder
 	}
 	return c.striped.Load()
+}
+
+// InflatedCounterBytes returns the memory, in bytes, that one Counter uses in this
+// process once it has inflated: the Counter itself, one Adder header and one cache line
+// for each stripe NewAdder would create now.
+//
+// Returns int which is the size in bytes.
+func InflatedCounterBytes() int {
+	return counterBytes + cacheLineSize + stripeCount()*cacheLineSize
 }
